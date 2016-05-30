@@ -125,11 +125,39 @@ $(document).ready(function () {
 </div>
 <div id="loading-and-preprocessing-the-data" class="section level3">
 <h3>Loading and preprocessing the data</h3>
-<pre class="r"><code>dataset &lt;- unzip(&quot;archive.zip&quot;)</code></pre>
-<pre><code>## Warning in unzip(&quot;archive.zip&quot;): error 1 in extracting from zip file</code></pre>
+<pre class="r"><code>    # Load data
+    zipPath &lt;- &quot;./activity.zip&quot;
+    filePath &lt;- &quot;./activity.csv&quot;
+    unzip(zipPath)
+    activity &lt;- read.csv(filePath, header = TRUE)
+    
+    # convert date column to a date object
+    activity$date &lt;- as.Date(activity$date, format = &quot;%Y-%m-%d&quot; )</code></pre>
 </div>
-<div id="processtransform-the-data-if-necessary-into-a-format-suitable-for-your-analysis" class="section level3">
-<h3>Process/transform the data (if necessary) into a format suitable for your analysis</h3>
+<div id="imputing-missing-values" class="section level3">
+<h3>Imputing missing values</h3>
+<p>To deal with missing values associated with NAs whose presence may introduce bias into calculations and summaries of the data.</p>
+<pre class="r"><code>    numNA &lt;- sum(is.na(activity)) 
+    # meanNA &lt;- mean(is.na(activity$steps))
+    activityCount &lt;- nrow(activity)
+    # replace NA values
+    activity2 &lt;- activity
+    activity2$steps [is.na(activity$steps)] &lt;- 0
+    
+    median &lt;- median(activity2$steps)
+    mean &lt;- mean(activity2$steps)
+    summary (activity2$steps)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    0.00    0.00    0.00   32.48    0.00  806.00</code></pre>
+<pre class="r"><code>    # replace NA values</code></pre>
+<p>The number of NAs in activities is: <strong>2304</strong><br />
+The total number of observations is <strong>17568</strong></p>
+<p>NA values have been set to <strong>0</strong> in a new dataset called <em>activity2</em>.</p>
+<p>The mean of activities2 <strong>32.4799636</strong><br />
+The Median of activities2 <strong>0</strong></p>
+<ol start="4" style="list-style-type: decimal">
+<li>Make a histogram of the total number of steps taken each day and Calculate and report the <strong>mean</strong> and <strong>median</strong> total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?</li>
+</ol>
 </div>
 <div id="what-is-mean-total-number-of-steps-taken-per-day" class="section level3">
 <h3>What is mean total number of steps taken per day?</h3>
@@ -146,7 +174,7 @@ $(document).ready(function () {
 <li><p>Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?</p></li>
 </ol>
 </div>
-<div id="imputing-missing-values" class="section level3">
+<div id="imputing-missing-values-1" class="section level3">
 <h3>Imputing missing values</h3>
 <p>Note that there are a number of days/intervals where there are missing values (coded as <code>NA</code>). The presence of missing days may introduce bias into some calculations or summaries of the data.</p>
 <ol style="list-style-type: decimal">

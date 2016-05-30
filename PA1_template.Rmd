@@ -21,15 +21,89 @@ Forked from: (http://github.com/rdpeng/RepData_PeerAssessment1).
 
 
 ### Loading and preprocessing the data
-```{r load-data}
-dataset <- unzip("archive.zip")
+```{r load-data }
+    library (dplyr)
+    # Load data
+    zipPath <- "./activity.zip"
+    filePath <- "./activity.csv"
+    unzip(zipPath)
+    activity <- read.csv(filePath, header = TRUE)
+    
+    # convert date column to a date object
+    activity$date <- as.Date(activity$date, format = "%Y-%m-%d" )
+    
+```
 
+### Imputing missing values
+
+To deal with missing values associated with NAs whose presence may introduce bias into calculations and summaries of the data. 
+
+```{r summary}
+    numNA <- sum(is.na(activity)) 
+    # meanNA <- mean(is.na(activity$steps))
+    activityCount <- nrow(activity)
+    
+    # make a second variable
+    activity2 <- activity
+    
+    # Calculate values
+    meanSteps <- activity %>% group_by(date) %>% summarize  (mean(steps, na.rm =TRUE)) 
+    names(meanSteps) <- c("date","steps")
+    
+    medianSteps <- activity %>% group_by(date) %>% summarize  (median(steps, na.rm =TRUE))
+   
+    sumSteps <- activity %>% group_by(date) %>% summarize  (sum(steps, na.rm =TRUE)) 
+    names(sumSteps) <- c("date","steps")
+    
+    meanStepsI <- activity %>% group_by(interval) %>% summarize  (mean(steps, na.rm =TRUE)) 
+    medianStepsI <- activity %>% group_by(interval) %>% summarize  (median(steps, na.rm =TRUE))
+    sumStepsI <- activity %>% group_by(interval) %>% summarize  (sum(steps, na.rm =TRUE)) 
+    
+    # median <- median(activity2$steps)
+    # mean <- mean(activity2$steps)
+    # summary (activity2$steps)
+    # replace NA values
+    
+    hist(sumSteps)
+```
+
+##Summary stats
+The number of NAs in activities is: **`r numNA`**  
+The total number of observations is **`r activityCount`**  
+
+###The average(mean) steps per day:
+**`r meanSteps`** 
+###Median steps per day:
+**`r medianSteps`** 
+###total number of steps per day:
+**`r sumSteps`** 
+
+## replacing values
+
+```{r replacingValues}
+    #apply (activities2, is.na(activity$steps), )
+    activityX <- merge (tbl_dt(activity2), meanSteps, by="date" )
+    # 
+#     # activity2$steps [is.na(activity$steps)] <- 0
+activity2$steps[is.na(activity2$steps$y)] <- mean(df$y, na.rm=TRUE)
+activity2$steps[is.na(activity2$steps$y)] <- mean(df$y, na.rm=TRUE)
+# df = data.frame(x = 1:20, y = c(1:10,rep(NA,10)))
+# df$y[is.na(df$y)] = mean(df$y, na.rm=TRUE)
+# # alternative
+# df = transform(df, y = ifelse(is.na(y), mean(y, na.rm=TRUE), y))
+```
+
+NA values have been set to **0** in a new dataset called *activity2*. 
+
+```{r replacingValues}
+hist(sumSteps$steps, breaks= 10, col="pink",xlab="# of Steps", main="Figure 1: Daily Steps")
 ```
 
 
+4. Make a histogram of the total number of steps taken each day and Calculate and report the **mean** and **median** total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 
-### Process/transform the data (if necessary) into a format suitable for your analysis
+
 
 
 ### What is mean total number of steps taken per day?
