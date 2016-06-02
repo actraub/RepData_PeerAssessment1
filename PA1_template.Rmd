@@ -48,7 +48,7 @@ Forked from: (http://github.com/rdpeng/RepData_PeerAssessment1).
 ```
 ###**Histogram** of the **total** number, **mean** & **median** of steps taken each day
 ``` {r histMeanSteps}
-    hist(sumSteps$steps, breaks= 15, col="pink",xlab="# of Steps", main="Figure 1: Daily Steps")
+    hist(sumSteps$steps, breaks= 15, col="pink",xlab="# of Steps", main="Figure 1: Daily Steps ")
     print (meanSteps)
     print (medianSteps)
 ```
@@ -56,16 +56,45 @@ Forked from: (http://github.com/rdpeng/RepData_PeerAssessment1).
 
 ###Time series plot of the average number of steps taken 
 ``` {r fivemin}
-    meanStepsI <- activity %>% group_by(interval) %>% summarize (mean(steps, na.rm =TRUE)) 
-    plot(meanStepsI, type="l", ylab="# of Steps", xlab="5 Minute Interval", col="cornflowerblue",  main="Figure 2: Daily Steps for Each Increment")
-   max(meanStepsI) 
+    meanStepsInt <- activity %>% group_by(interval) %>% summarize (mean(steps, na.rm =TRUE)) 
+names(meanStepsInt) <- c("interval","mean")
+    plot(meanStepsInt, type="l", ylab="# of Steps", xlab="5 Minute Interval", col="cornflowerblue",  main="Figure 2: Daily Steps for Each Increment")
+   max(meanStepsInt) 
 ```
-
-``` {r impute}
+##Imputing missing values
+``` {r impute }
     numNA <- sum(is.na(activity)) 
     # meanNA <- mean(is.na(activity$steps))
     activityCount <- nrow(activity)
     # make a second variable
     activity2 <- activity
+
+   
+    print ("Summary numbers by interval including mean")
+    str (meanStepsInt)
+    summary (meanStepsInt)
+    max(meanStepsInt)
+    
+    activity3 <- merge (activity2, tbl_df(meanStepsInt), by="interval" )   
+    names(activity3)[4] <- "intMean"
+    activity3$newsteps <- mapply (ifelse , is.na(activity3$steps), activity3$intMean, activity3$steps)
+
+    str (activity2)
+    print (meanStepsInt[max(meanStepsInt$mean),])
+    activity4 <- activity3 %>%
+        arrange (steps)
+    hist(activity4$newsteps, breaks= 15, col="pink", main="Figure 3: Daily Steps imputed")
+
 ```
-Number of NA values: `r numNA`
+Number of NA values: **`r numNA`**  
+Number of observations: **`r activityCount`**  
+maximum Interval: **`r str (meanStepsInt)`**  
+
+
+
+
+
+--the end--
+
+
+
