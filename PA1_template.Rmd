@@ -12,7 +12,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Reproducable Data Assignment 1 (week 2)
 ### By Aaron Traub
 
-
+``` {r libs} 
+library(chron)
+```
 
 Dataset: Activity monitoring data [52K]
 
@@ -62,6 +64,9 @@ names(meanStepsInt) <- c("interval","mean")
    max(meanStepsInt) 
 ```
 ##Imputing missing values
+I imputed missing values by filling in NA values with intrval average across days. Data was missing in large chunks likely caused by not wearing the device for portions a day in general. To have the most accurate data, it was more likely that an interval's mean would be more accurate (users will likely perform common tasks ast common times during the day) than daily average. 
+
+
 ``` {r impute }
     numNA <- sum(is.na(activity)) 
     # meanNA <- mean(is.na(activity$steps))
@@ -77,22 +82,54 @@ names(meanStepsInt) <- c("interval","mean")
     
     activity3 <- merge (activity2, tbl_df(meanStepsInt), by="interval" )   
     names(activity3)[4] <- "intMean"
-    activity3$newsteps <- mapply (ifelse , is.na(activity3$steps), activity3$intMean, activity3$steps)
+    activity3$newSteps <- mapply (ifelse , is.na(activity3$steps), activity3$intMean, activity3$steps)
 
     str (activity2)
     print (meanStepsInt[max(meanStepsInt$mean),])
     activity4 <- activity3 %>%
-        arrange (steps)
-    hist(activity4$newsteps, breaks= 15, col="pink", main="Figure 3: Daily Steps imputed")
+        arrange (newSteps) %>% 
+        group_by(date) %>% 
+        summarize  (mean(newSteps, na.rm =TRUE))
+        names(activity4) <- c("date", "mean")
+    
+    hist(activity4$mean, breaks= 15, col="pink", main="Figure 3: Daily Steps imputed")
 
 ```
 Number of NA values: **`r numNA`**  
 Number of observations: **`r activityCount`**  
 maximum Interval: **`r str (meanStepsInt)`**  
 
+## Difference between weekends & weekdays
+### Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
 
+``` {r days}
 
+# subset for weekends and weekdays
 
+    activityWeekend <- activity3 %>%
+        arrange (newSteps) %>% 
+        filter (is.weekend(activity3$date)) %>% 
+        group_by(interval) %>% 
+        summarize (mean(newSteps, na.rm =TRUE))
+        names(activityWeekend) <- c("interval", "mean")
+        
+    activityWeekdays <- activity3 %>%
+        arrange (newSteps) %>% 
+        filter (!is.weekend(activity3$date)) %>% 
+        group_by(interval) %>% 
+        summarize (mean(newSteps, na.rm =TRUE))
+        names(activityWeekdays) <- c("interval", "mean")
+```
+Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends 
+
+``` {r panelplot}
+    par(mfrow=c(1,2))
+    plot(activityWeekdays$interval, activityWeekdays$mean, main="Weekday intervals", type="l")
+        abline(h=mean(activityWeekdays$mean), col="purple")
+
+    plot(activityWeekend$interval, activityWeekend$mean, main="Weekend Intervals", type="l", )
+    abline(h=mean(activityWeekend$mean), col="purple")
+```
 
 --the end--
 
