@@ -2,7 +2,7 @@
 title: "PA1_template"
 author: "Aaron Traub"
 date: "May 25, 2016"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}

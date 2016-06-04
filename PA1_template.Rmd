@@ -2,11 +2,12 @@
 title: "PA1_template"
 author: "Aaron Traub"
 date: "May 25, 2016"
-output: pdf_document
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
 ## Reproducable Data Assignment 1 (week 2)
